@@ -11,9 +11,6 @@ CREATE TABLE "Classes" (
   "DateTime" timestamp NOT NULL,
   "MaxParticipants" int CHECK ("MaxParticipants" > 0)
 );
-ALTER TABLE "Classes" ADD FOREIGN KEY ("InstructorID") REFERENCES "Instructors" ("InstructorID");
-ALTER TABLE "Classes" ADD FOREIGN KEY ("BranchID") REFERENCES "Branches" ("BranchID");
-
 
 DROP TABLE IF EXISTS "UserAuthentication";
 CREATE TABLE "UserAuthentication" (
@@ -59,8 +56,6 @@ CREATE TABLE "Instructors" (
   "YearsOfExperience" int CHECK ("YearsOfExperience" >= 0),
   "Qualifications" text
 );
-ALTER TABLE "Instructors" ADD FOREIGN KEY ("UserID") REFERENCES "UserAuthentication" ("UserID");
-ALTER TABLE "Instructors" ADD FOREIGN KEY ("BranchID") REFERENCES "Branches"("BranchID");
 
 DROP TABLE IF EXISTS "Customers";
 CREATE TABLE "Customers" (
@@ -77,8 +72,6 @@ CREATE TABLE "Customers" (
   "HealthIssues" text,
   "LastActivityDate" date
 );
-ALTER TABLE "Customers" ADD FOREIGN KEY ("UserID") REFERENCES "UserAuthentication" ("UserID");
-ALTER TABLE "Customers" ADD FOREIGN KEY ("MembershipID") REFERENCES "Memberships" ("MembershipID");
 
 DROP TABLE IF EXISTS "Bookings";
 CREATE TABLE "Bookings" (
@@ -88,8 +81,6 @@ CREATE TABLE "Bookings" (
   "BookingDateTime" timestamp NOT NULL,
   "SessionType" varchar(50) NOT NULL
 );
-ALTER TABLE "Bookings" ADD FOREIGN KEY ("CustomerID") REFERENCES "Customers" ("CustomerID");
-ALTER TABLE "Bookings" ADD FOREIGN KEY ("ClassID") REFERENCES "Classes" ("ClassID");
 
 DROP TABLE IF EXISTS "Memberships";
 CREATE TABLE "Memberships" (
@@ -109,8 +100,6 @@ CREATE TABLE "Memberships" (
   "Benefits" text,
   "AccessLevel" varchar(50)
 );
-ALTER TABLE "Memberships" ADD FOREIGN KEY ("CustomerID") REFERENCES "Customers" ("CustomerID");
-ALTER TABLE "Memberships" ADD FOREIGN KEY ("TransactionID") REFERENCES "PaymentTransactions" ("TransactionID");
 
 DROP TABLE IF EXISTS "SalesAndProducts";
 CREATE TABLE "SalesAndProducts" (
@@ -123,8 +112,6 @@ CREATE TABLE "SalesAndProducts" (
   "TransactionID" int,
   "CustomerID" int
 );
-ALTER TABLE "SalesAndProducts" ADD FOREIGN KEY ("TransactionID") REFERENCES "PaymentTransactions" ("TransactionID");
-ALTER TABLE "SalesAndProducts" ADD FOREIGN KEY ("CustomerID") REFERENCES "Customers" ("CustomerID");
 
 DROP TABLE IF EXISTS "PackagesAndGiftCards";
 CREATE TABLE "PackagesAndGiftCards" (
@@ -142,7 +129,6 @@ CREATE TABLE "PackagesAndGiftCards" (
   "ActivationDate" date,
   "TermsAndConditions" text
 );
-ALTER TABLE "PackagesAndGiftCards" ADD FOREIGN KEY ("CustomerID") REFERENCES "Customers" ("CustomerID");
 
 DROP TABLE IF EXISTS "Notifications";
 CREATE TABLE "Notifications" (
@@ -154,8 +140,6 @@ CREATE TABLE "Notifications" (
   "BookingID" int,
   "CustomerID" int
 );
-ALTER TABLE "Notifications" ADD FOREIGN KEY ("BookingID") REFERENCES "Bookings" ("BookingID");
-ALTER TABLE "Notifications" ADD FOREIGN KEY ("CustomerID") REFERENCES "Customers" ("CustomerID");
 
 DROP TABLE IF EXISTS "PaymentTransactions";
 CREATE TABLE "PaymentTransactions" (
@@ -167,7 +151,6 @@ CREATE TABLE "PaymentTransactions" (
   "Status" varchar(50) NOT NULL,
   "ReceivedBy" int
 );
-ALTER TABLE "PaymentTransactions" ADD FOREIGN KEY ("CustomerID") REFERENCES "Customers" ("CustomerID");
 
 DROP TABLE IF EXISTS "Messages";
 CREATE TABLE "Messages" (
@@ -178,5 +161,23 @@ CREATE TABLE "Messages" (
   "Timestamp" timestamp NOT NULL,
   "ReadStatus" varchar(50)
 );
+
+-- Add Foreign Key Constraints
 ALTER TABLE "Messages" ADD FOREIGN KEY ("SenderID") REFERENCES "UserAuthentication" ("UserID");
 ALTER TABLE "Messages" ADD FOREIGN KEY ("ReceiverID") REFERENCES "UserAuthentication" ("UserID");
+ALTER TABLE "Instructors" ADD FOREIGN KEY ("UserID") REFERENCES "UserAuthentication" ("UserID");
+ALTER TABLE "Instructors" ADD FOREIGN KEY ("BranchID") REFERENCES "Branches"("BranchID");
+ALTER TABLE "Customers" ADD FOREIGN KEY ("UserID") REFERENCES "UserAuthentication" ("UserID");
+ALTER TABLE "Customers" ADD FOREIGN KEY ("MembershipID") REFERENCES "Memberships" ("MembershipID");
+ALTER TABLE "Bookings" ADD FOREIGN KEY ("CustomerID") REFERENCES "Customers" ("CustomerID");
+ALTER TABLE "Bookings" ADD FOREIGN KEY ("ClassID") REFERENCES "Classes" ("ClassID");
+ALTER TABLE "Memberships" ADD FOREIGN KEY ("CustomerID") REFERENCES "Customers" ("CustomerID");
+ALTER TABLE "Memberships" ADD FOREIGN KEY ("TransactionID") REFERENCES "PaymentTransactions" ("TransactionID");
+ALTER TABLE "SalesAndProducts" ADD FOREIGN KEY ("TransactionID") REFERENCES "PaymentTransactions" ("TransactionID");
+ALTER TABLE "SalesAndProducts" ADD FOREIGN KEY ("CustomerID") REFERENCES "Customers" ("CustomerID");
+ALTER TABLE "PackagesAndGiftCards" ADD FOREIGN KEY ("CustomerID") REFERENCES "Customers" ("CustomerID");
+ALTER TABLE "Notifications" ADD FOREIGN KEY ("BookingID") REFERENCES "Bookings" ("BookingID");
+ALTER TABLE "Notifications" ADD FOREIGN KEY ("CustomerID") REFERENCES "Customers" ("CustomerID");
+ALTER TABLE "PaymentTransactions" ADD FOREIGN KEY ("CustomerID") REFERENCES "Customers" ("CustomerID");
+ALTER TABLE "Classes" ADD FOREIGN KEY ("InstructorID") REFERENCES "Instructors" ("InstructorID");
+ALTER TABLE "Classes" ADD FOREIGN KEY ("BranchID") REFERENCES "Branches" ("BranchID");
