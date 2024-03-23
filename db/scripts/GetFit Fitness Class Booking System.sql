@@ -1,78 +1,80 @@
 DROP TABLE IF EXISTS "Classes";
 CREATE TABLE "Classes" (
-  "ClassID" int PRIMARY KEY,
-  "ClassName" varchar,
-  "ClassDescription" varchar,
-  "ClassType" varchar,
-  "InstructorID" int,
-  "Duration" int,
-  "DifficultyLevel" varchar,
-  "BranchID" int,
-  "DateTime" datetime,
-  "MaxParticipants" int
+  "ClassID" SERIAL PRIMARY KEY,
+  "ClassName" varchar(100) NOT NULL,
+  "ClassDescription" text,
+  "ClassType" varchar(50) NOT NULL,
+  "InstructorID" int NOT NULL,
+  "Duration" int CHECK ("Duration" > 0),
+  "DifficultyLevel" varchar(50),
+  "BranchID" int NOT NULL,
+  "DateTime" timestamp NOT NULL,
+  "MaxParticipants" int CHECK ("MaxParticipants" > 0)
 );
 ALTER TABLE "Classes" ADD FOREIGN KEY ("InstructorID") REFERENCES "Instructors" ("InstructorID");
 ALTER TABLE "Classes" ADD FOREIGN KEY ("BranchID") REFERENCES "Branches" ("BranchID");
 
+
 DROP TABLE IF EXISTS "UserAuthentication";
 CREATE TABLE "UserAuthentication" (
-  "UserID" int PRIMARY KEY,
-  "Username" varchar,
-  "Password" varchar,
-  "LastLogin" datetime,
-  "AccountStatus" varchar,
-  "Role" varchar
+  "UserID" SERIAL PRIMARY KEY,
+  "Username" varchar(100) NOT NULL,
+  "Password" varchar(255) NOT NULL,
+  "LastLogin" timestamp,
+  "AccountStatus" varchar(50) NOT NULL,
+  "Role" varchar(50) NOT NULL
+);
+
+DROP TABLE IF EXISTS "Branches";
+CREATE TABLE "Branches" (
+  "BranchID" SERIAL PRIMARY KEY,
+  "BranchName" varchar(100) NOT NULL,
+  "BranchType" varchar(50),
+  "Location" text NOT NULL,
+  "PhoneNumber" varchar(20),
+  "Email" varchar(100),
+  "ManagerID" int,
+  "Facilities" text,
+  "OpeningHours" text,
+  "MembershipOptions" text,
+  "ClassTypesOffered" text,
+  "EventsCalendarLink" varchar(255),
+  "Status" varchar(50) NOT NULL
 );
 
 DROP TABLE IF EXISTS "Instructors";
 CREATE TABLE "Instructors" (
-  "InstructorID" int PRIMARY KEY,
-  "UserID" int,
-  "InstructorName" varchar,
-  "Specialization" varchar,
-  "Rating" float,
-  "HireDate" date,
-  "ClassesTaught" varchar,
-  "Availability" varchar,
-  "InstructorPhoto" varchar,
-  "TrainingHourLogged" int,
-  "Status" varchar,
-  "YearsOfExperience" int,
-  "Qualifications" varchar
+  "InstructorID" SERIAL PRIMARY KEY,
+  "UserID" int NOT NULL,
+  "BranchID" int NOT NULL,
+  "InstructorName" varchar(100) NOT NULL,
+  "Specialization" varchar(100),
+  "Rating" float CHECK ("Rating" >= 0 AND "Rating" <= 5),
+  "HireDate" date NOT NULL,
+  "ClassesTaught" text,
+  "Availability" text,
+  "InstructorPhoto" varchar(255),
+  "TrainingHourLogged" int CHECK ("TrainingHourLogged" >= 0),
+  "Status" varchar(50) NOT NULL,
+  "YearsOfExperience" int CHECK ("YearsOfExperience" >= 0),
+  "Qualifications" text
 );
 ALTER TABLE "Instructors" ADD FOREIGN KEY ("UserID") REFERENCES "UserAuthentication" ("UserID");
-ALTER TABLE "Instructors" ADD CONSTRAINT fk_branch_id FOREIGN KEY ("BranchID") REFERENCES "Branches"("BranchID");
-
-DROP TABLE IF EXISTS "Branches";
-CREATE TABLE "Branches" (
-  "BranchID" int PRIMARY KEY,
-  "BranchName" varchar,
-  "BranchType" varchar,
-  "Location" varchar,
-  "PhoneNumber" varchar,
-  "Email" varchar,
-  "ManagerID" int,
-  "Facilities" varchar,
-  "OpeningHours" varchar,
-  "MembershipOptions" varchar,
-  "ClassTypesOffered" varchar,
-  "EventsCalendarLink" varchar,
-  "Status" varchar
-);
+ALTER TABLE "Instructors" ADD FOREIGN KEY ("BranchID") REFERENCES "Branches"("BranchID");
 
 DROP TABLE IF EXISTS "Customers";
 CREATE TABLE "Customers" (
-  "CustomerID" int PRIMARY KEY,
-  "UserID" int,
-  "CustomerName" varchar,
-  "Email" varchar,
-  "Address" varchar,
+  "CustomerID" SERIAL PRIMARY KEY,
+  "UserID" int NOT NULL,
+  "CustomerName" varchar(100) NOT NULL,
+  "Email" varchar(100),
+  "Address" text,
   "MembershipID" int,
   "DateOfBirth" date,
-  "Gender" varchar,
-  "EmergencyContact" varchar,
-  "CustomerPhoto" varchar,
-  "HealthIssues" varchar,
+  "Gender" varchar(50),
+  "EmergencyContact" varchar(100),
+  "CustomerPhoto" varchar(255),
+  "HealthIssues" text,
   "LastActivityDate" date
 );
 ALTER TABLE "Customers" ADD FOREIGN KEY ("UserID") REFERENCES "UserAuthentication" ("UserID");
@@ -80,44 +82,44 @@ ALTER TABLE "Customers" ADD FOREIGN KEY ("MembershipID") REFERENCES "Memberships
 
 DROP TABLE IF EXISTS "Bookings";
 CREATE TABLE "Bookings" (
-  "BookingID" int PRIMARY KEY,
-  "CustomerID" int,
-  "ClassID" int,
-  "BookingDateTime" datetime,
-  "SessionType" varchar
+  "BookingID" SERIAL PRIMARY KEY,
+  "CustomerID" int NOT NULL,
+  "ClassID" int NOT NULL,
+  "BookingDateTime" timestamp NOT NULL,
+  "SessionType" varchar(50) NOT NULL
 );
 ALTER TABLE "Bookings" ADD FOREIGN KEY ("CustomerID") REFERENCES "Customers" ("CustomerID");
 ALTER TABLE "Bookings" ADD FOREIGN KEY ("ClassID") REFERENCES "Classes" ("ClassID");
 
 DROP TABLE IF EXISTS "Memberships";
 CREATE TABLE "Memberships" (
-  "MembershipID" int PRIMARY KEY,
-  "CustomerID" int,
+  "MembershipID" SERIAL PRIMARY KEY,
+  "CustomerID" int NOT NULL,
   "TransactionID" int,
-  "Type" varchar,
-  "StartDate" date,
+  "Type" varchar(50) NOT NULL,
+  "StartDate" date NOT NULL,
   "EndDate" date,
-  "Status" varchar,
-  "Price" decimal,
-  "PaymentMethod" varchar,
-  "RenewalStatus" varchar,
+  "Status" varchar(50) NOT NULL,
+  "Price" decimal(10,2),
+  "PaymentMethod" varchar(50),
+  "RenewalStatus" varchar(50),
   "LastPaymentDate" date,
   "NextPaymentDate" date,
-  "DiscountsApplied" varchar,
-  "Benefits" varchar,
-  "AccessLevel" varchar
+  "DiscountsApplied" text,
+  "Benefits" text,
+  "AccessLevel" varchar(50)
 );
 ALTER TABLE "Memberships" ADD FOREIGN KEY ("CustomerID") REFERENCES "Customers" ("CustomerID");
 ALTER TABLE "Memberships" ADD FOREIGN KEY ("TransactionID") REFERENCES "PaymentTransactions" ("TransactionID");
 
 DROP TABLE IF EXISTS "SalesAndProducts";
 CREATE TABLE "SalesAndProducts" (
-  "ProductID" int PRIMARY KEY,
-  "ProductName" varchar,
-  "ProductDescription" varchar,
-  "ProductType" varchar,
-  "Price" decimal,
-  "StockQuantity" int,
+  "ProductID" SERIAL PRIMARY KEY,
+  "ProductName" varchar(100) NOT NULL,
+  "ProductDescription" text,
+  "ProductType" varchar(50) NOT NULL,
+  "Price" decimal(10,2) NOT NULL,
+  "StockQuantity" int CHECK ("StockQuantity" >= 0),
   "TransactionID" int,
   "CustomerID" int
 );
@@ -126,30 +128,29 @@ ALTER TABLE "SalesAndProducts" ADD FOREIGN KEY ("CustomerID") REFERENCES "Custom
 
 DROP TABLE IF EXISTS "PackagesAndGiftCards";
 CREATE TABLE "PackagesAndGiftCards" (
-  "PackageID" int PRIMARY KEY,
-  "PackageName" varchar,
-  "Type" varchar,
-  "PackageDescription" varchar,
-  "Price" decimal,
-  "PurchaseDate" date,
+  "PackageID" SERIAL PRIMARY KEY,
+  "PackageName" varchar(100) NOT NULL,
+  "Type" varchar(50) NOT NULL,
+  "PackageDescription" text,
+  "Price" decimal(10,2) NOT NULL,
+  "PurchaseDate" date NOT NULL,
   "ValidityPeriod" int,
   "ExpirationDate" date,
   "CustomerID" int,
-  "Usage" int,
-  "Status" varchar,
+  "Usage" int CHECK ("Usage" >= 0),
+  "Status" varchar(50) NOT NULL,
   "ActivationDate" date,
-  "TermsAndConditions" varchar
+  "TermsAndConditions" text
 );
 ALTER TABLE "PackagesAndGiftCards" ADD FOREIGN KEY ("CustomerID") REFERENCES "Customers" ("CustomerID");
-ALTER TABLE "PackagesAndGiftCards" ADD FOREIGN KEY ("TransactionID") REFERENCES "PaymentTransactions" ("TransactionID");
 
 DROP TABLE IF EXISTS "Notifications";
 CREATE TABLE "Notifications" (
-  "NotificationID" int PRIMARY KEY,
-  "NotificationType" varchar,
-  "Status" varchar,
-  "NotificationDateTime" datetime,
-  "Content" varchar,
+  "NotificationID" SERIAL PRIMARY KEY,
+  "NotificationType" varchar(50) NOT NULL,
+  "Status" varchar(50) NOT NULL,
+  "NotificationDateTime" timestamp NOT NULL,
+  "Content" text NOT NULL,
   "BookingID" int,
   "CustomerID" int
 );
@@ -158,26 +159,24 @@ ALTER TABLE "Notifications" ADD FOREIGN KEY ("CustomerID") REFERENCES "Customers
 
 DROP TABLE IF EXISTS "PaymentTransactions";
 CREATE TABLE "PaymentTransactions" (
-  "TransactionID" int PRIMARY KEY,
+  "TransactionID" SERIAL PRIMARY KEY,
   "CustomerID" int,
-  "TransactionType" varchar,
-  "Amount" decimal,
-  "PaymentDate" date,
-  "Status" varchar,
+  "TransactionType" varchar(50) NOT NULL,
+  "Amount" decimal(10,2) NOT NULL,
+  "PaymentDate" date NOT NULL,
+  "Status" varchar(50) NOT NULL,
   "ReceivedBy" int
 );
 ALTER TABLE "PaymentTransactions" ADD FOREIGN KEY ("CustomerID") REFERENCES "Customers" ("CustomerID");
 
 DROP TABLE IF EXISTS "Messages";
 CREATE TABLE "Messages" (
-  "MessageID" int PRIMARY KEY,
-  "SenderID" int,
-  "ReceiverID" int,
-  "Content" text,
-  "Timestamp" datetime,
-  "ReadStatus" varchar
+  "MessageID" SERIAL PRIMARY KEY,
+  "SenderID" int NOT NULL,
+  "ReceiverID" int NOT NULL,
+  "Content" text NOT NULL,
+  "Timestamp" timestamp NOT NULL,
+  "ReadStatus" varchar(50)
 );
 ALTER TABLE "Messages" ADD FOREIGN KEY ("SenderID") REFERENCES "UserAuthentication" ("UserID");
 ALTER TABLE "Messages" ADD FOREIGN KEY ("ReceiverID") REFERENCES "UserAuthentication" ("UserID");
-
-
