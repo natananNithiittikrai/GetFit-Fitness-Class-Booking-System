@@ -30,9 +30,8 @@ CREATE TABLE "Branches" (
   "Location" text NOT NULL,
   "PhoneNumber" varchar(20),
   "Email" varchar(100),
-  "ManagerID" int,
   "Facilities" text,
-  "OpeningHours" text,
+  "OpeningHours" text NOT NULL,
   "MembershipOptions" text,
   "ClassTypesOffered" text,
   "EventsCalendarLink" varchar(255),
@@ -48,8 +47,8 @@ CREATE TABLE "Instructors" (
   "Specialization" varchar(100),
   "Rating" float CHECK ("Rating" >= 0 AND "Rating" <= 5),
   "HireDate" date NOT NULL,
-  "ClassesTaught" text,
-  "Availability" text,
+  "ClassesTaught" text NOT NULL,
+  "Availability" text NOT NULL,
   "InstructorPhoto" varchar(255),
   "TrainingHourLogged" int CHECK ("TrainingHourLogged" >= 0),
   "Status" varchar(50) NOT NULL,
@@ -62,11 +61,10 @@ CREATE TABLE "Customers" (
   "CustomerID" SERIAL PRIMARY KEY,
   "UserID" int NOT NULL,
   "CustomerName" varchar(100) NOT NULL,
-  "Email" varchar(100),
-  "Address" text,
-  "MembershipID" int,
-  "DateOfBirth" date,
-  "Gender" varchar(50),
+  "Email" varchar(100) NOT NULL UNIQUE,
+  "Address" text NOT NULL,
+  "DateOfBirth" date NOT NULL,
+  "Gender" varchar(50) NOT NULL,
   "EmergencyContact" varchar(100),
   "CustomerPhoto" varchar(255),
   "HealthIssues" text,
@@ -86,19 +84,19 @@ DROP TABLE IF EXISTS "Memberships";
 CREATE TABLE "Memberships" (
   "MembershipID" SERIAL PRIMARY KEY,
   "CustomerID" int NOT NULL,
-  "TransactionID" int,
+  "TransactionID" int ,
   "Type" varchar(50) NOT NULL,
   "StartDate" date NOT NULL,
   "EndDate" date,
   "Status" varchar(50) NOT NULL,
-  "Price" decimal(10,2),
-  "PaymentMethod" varchar(50),
+  "Price" decimal(10,2) NOT NULL,
+  "PaymentMethod" varchar(50) NOT NULL,
   "RenewalStatus" varchar(50),
   "LastPaymentDate" date,
-  "NextPaymentDate" date,
+  "NextPaymentDate" date NOT NULL,
   "DiscountsApplied" text,
   "Benefits" text,
-  "AccessLevel" varchar(50)
+  "AccessLevel" varchar(50) NOT NULL
 );
 
 DROP TABLE IF EXISTS "SalesAndProducts";
@@ -110,24 +108,6 @@ CREATE TABLE "SalesAndProducts" (
   "Price" decimal(10,2) NOT NULL,
   "StockQuantity" int CHECK ("StockQuantity" >= 0),
   "TransactionID" int,
-  "CustomerID" int
-);
-
-DROP TABLE IF EXISTS "PackagesAndGiftCards";
-CREATE TABLE "PackagesAndGiftCards" (
-  "PackageID" SERIAL PRIMARY KEY,
-  "PackageName" varchar(100) NOT NULL,
-  "Type" varchar(50) NOT NULL,
-  "PackageDescription" text,
-  "Price" decimal(10,2) NOT NULL,
-  "PurchaseDate" date NOT NULL,
-  "ValidityPeriod" int,
-  "ExpirationDate" date,
-  "CustomerID" int,
-  "Usage" int CHECK ("Usage" >= 0),
-  "Status" varchar(50) NOT NULL,
-  "ActivationDate" date,
-  "TermsAndConditions" text
 );
 
 DROP TABLE IF EXISTS "Notifications";
@@ -144,7 +124,7 @@ CREATE TABLE "Notifications" (
 DROP TABLE IF EXISTS "PaymentTransactions";
 CREATE TABLE "PaymentTransactions" (
   "TransactionID" SERIAL PRIMARY KEY,
-  "CustomerID" int,
+  "CustomerID" int NOT NULL,
   "TransactionType" varchar(50) NOT NULL,
   "Amount" decimal(10,2) NOT NULL,
   "PaymentDate" date NOT NULL,
@@ -161,6 +141,7 @@ CREATE TABLE "Messages" (
   "Timestamp" timestamp NOT NULL,
   "ReadStatus" varchar(50)
 );
+
 
 -- Add Foreign Key Constraints
 ALTER TABLE "Messages" ADD FOREIGN KEY ("SenderID") REFERENCES "UserAuthentication" ("UserID");
