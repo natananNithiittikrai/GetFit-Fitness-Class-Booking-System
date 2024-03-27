@@ -19,7 +19,8 @@ CREATE TABLE "UserAuthentication" (
   "Password" varchar(255) NOT NULL,
   "LastLogin" timestamp,
   "AccountStatus" varchar(50) NOT NULL,
-  "Role" varchar(50) NOT NULL
+  "Role" varchar(50) NOT NULL,
+  "LoginStatus" BOOLEAN DEFAULT FALSE
 );
 
 DROP TABLE IF EXISTS "Branches";
@@ -91,11 +92,9 @@ CREATE TABLE "Memberships" (
   "Status" varchar(50) NOT NULL,
   "Price" decimal(10,2) NOT NULL,
   "PaymentMethod" varchar(50) NOT NULL,
-  "RenewalStatus" varchar(50),
+  "RenewalStatus" BOOLEAN,
   "LastPaymentDate" date,
   "NextPaymentDate" date NOT NULL,
-  "DiscountsApplied" text,
-  "Benefits" text,
   "AccessLevel" varchar(50) NOT NULL
 );
 
@@ -128,8 +127,7 @@ CREATE TABLE "PaymentTransactions" (
   "TransactionType" varchar(50) NOT NULL,
   "Amount" decimal(10,2) NOT NULL,
   "PaymentDate" date NOT NULL,
-  "Status" varchar(50) NOT NULL,
-  "ReceivedBy" int
+  "Status" varchar(50) NOT NULL
 );
 
 DROP TABLE IF EXISTS "Messages";

@@ -74,42 +74,46 @@ AFTER INSERT ON "Bookings"
 FOR EACH ROW
 EXECUTE FUNCTION notify_class_booking();
 
+-- Function for handling membership renewals
+CREATE OR REPLACE FUNCTION membership_renewal_trigger()
+RETURNS TRIGGER AS $$
+DECLARE
+    new_payment_date DATE;
+BEGIN
+    IF NEW."EndDate" > OLD."EndDate" AND NEW."RenewalStatus" = 'True' THEN
+        -- Assuming a 1-year renewal period
+        new_payment_date := CURRENT_DATE + INTERVAL '1 year';
+
+        -- Update NextPaymentDate and EndDate in Memberships table
+        NEW."NextPaymentDate" := new_payment_date;
+        NEW."EndDate" := NEW."EndDate" + INTERVAL '1 year';
+
+        -- Insert a new record into PaymentTransactions table
+        INSERT INTO "PaymentTransactions" (
+            "CustomerID",
+            "TransactionType",
+            "Amount",
+            "PaymentDate",
+            "Status"
+        )
+        VALUES (
+            NEW."CustomerID",
+            'Membership Renewal',
+            NEW."Price",
+            CURRENT_DATE,
+            'Completed'
+        );
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_membership_renewal
+AFTER UPDATE ON "Memberships"
+FOR EACH ROW
+EXECUTE FUNCTION membership_renewal_trigger();
 
 #___________________________________________________________________________________________________________________________
-
--- Trigger Function to update 'StockQuantity' in 'SalesAndProducts'
-CREATE OR REPLACE FUNCTION update_stock_after_sale()
-RETURNS TRIGGER AS $$
-BEGIN
-  UPDATE "SalesAndProducts"
-  SET "StockQuantity" = "StockQuantity" - NEW."SoldQuantity"
-  WHERE "ProductID" = NEW."ProductID";
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
--- Trigger to update 'StockQuantity' after a sale (Assuming 'SoldQuantity' is a column in 'SalesAndProducts')
-CREATE TRIGGER trigger_update_stock
-AFTER INSERT ON "SalesAndProducts"
-FOR EACH ROW
-EXECUTE FUNCTION update_stock_after_sale();
-
--- Trigger Function to update 'LastPaymentDate' in 'Memberships'
-CREATE OR REPLACE FUNCTION update_last_payment_date()
-RETURNS TRIGGER AS $$
-BEGIN
-  UPDATE "Memberships"
-  SET "LastPaymentDate" = NEW."PaymentDate"
-  WHERE "MembershipID" = NEW."MembershipID";
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
--- Trigger to update 'LastPaymentDate' after a payment transaction
-CREATE TRIGGER trigger_update_last_payment
-AFTER INSERT ON "PaymentTransactions"
-FOR EACH ROW
-EXECUTE FUNCTION update_last_payment_date();
 
 
 

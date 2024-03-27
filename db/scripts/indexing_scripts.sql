@@ -1,18 +1,16 @@
 -- Indexing
 
--- Creating index on 'ClassType' and 'DifficultyLevel' in 'Classes' table
-CREATE INDEX idx_class_type_difficulty ON "Classes" ("ClassType", "DifficultyLevel");
-
 -- Creating index on 'Username' in 'UserAuthentication' table
-CREATE INDEX idx_username ON "UserAuthentication" ("Username");
+CREATE INDEX idx_user_auth_username ON "UserAuthentication" ("Username");
 
--- Creating index on 'Specialization' in 'Instructors' table
-CREATE INDEX idx_instructor_specialization ON "Instructors" ("Specialization");
+-- Creating index on 'BranchName' and 'BranchType' in 'Branches' table
+CREATE INDEX idx_bookings_customer_class ON "Bookings" ("CustomerID", "ClassID");
 
--- Creating index on 'Email' and 'LastActivityDate' in 'Customers' table
-CREATE INDEX idx_customer_email_activity ON "Customers" ("Email", "LastActivityDate");
+-- Creating index on 'CustomerID' in 'Memberships' table
+CREATE INDEX idx_memberships_customer ON "Memberships" ("CustomerID");
 
--- Creating index on 'BookingDateTime' and 'ClassID' in 'Bookings' table
-CREATE INDEX idx_booking_datetime_classid ON "Bookings" ("BookingDateTime", "ClassID");
+-- Creating index on 'InstructorID' and 'BranchID' in 'Classes' table
+CREATE INDEX idx_classes_instructor_branch ON "Classes" ("InstructorID", "BranchID");
 
--- Additional triggers and indexes for 'Memberships', 'SalesAndProducts', 'PaymentTransactions' can be added similarly
+-- Creating index on 'CustomerID' and 'BookingID' in 'Notifications' table
+CREATE INDEX idx_notifications_customer_booking ON "Notifications" ("CustomerID", "BookingID");
